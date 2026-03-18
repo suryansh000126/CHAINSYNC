@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChainSync | Decentralized Crypto Platform</title>
+  <meta name="description" content="ChainSync - Your production-ready cryptocurrency platform for portfolio 
+management, trading, mining, and NFT marketplace." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" 
+rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  
+  <!-- Background Elements -->
+  <div class="bg-glow bg-top-left"></div>
+  <div class="bg-glow bg-bottom-right"></div>
+
+  <!-- ===== SIDEBAR NAVIGATION ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" 
+stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="logo-text">Chain<span class="highlight">Sync</span></span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" 
+height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect 
+x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Dashboard</span>
+      </button>
+
+      <button class="nav-item" onclick="showSection('vault')" id="nav-vault">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" 
+height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Wallet Vault</span>
+      </button>
+
+      <button class="nav-item" onclick="showSection('trading')" id="nav-trading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 
+8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+        <span>Trading</span>
+      </button>
+
+      <button class="nav-item" onclick="showSection('ai')" id="nav-ai">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" 
+r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+        <span>AI Premium</span>
+      </button>
+
+      <button class="nav-item" onclick="showSection('mining')" id="nav-mining">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 
+21 9 3 6 12 2 12"></polyline></svg>
+        <span>Mining</span>
+      </button>
+
+      <button class="nav-item" onclick="showSection('nft')" id="nav-nft">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" 
+height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 
+21"></polyline></svg>
+        <span>NFT Market</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="wallet-badge" id="walletBadge">
+        <div class="status-dot"></div>
+        <span id="walletShort">Not Connected</span>
+      </div>
+      <a href="/login.html" class="disconnect-btn" id="disconnectBtn">Disconnect</a>
+    </div>
+  </aside>
+
+  <!-- Mobile hamburger -->
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" 
+y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+  </button>
+
+  <!-- ===== MAIN CONTENT AREA ===== -->
+  <main class="main-content" id="mainContent">
+
+    <!-- ===== LIVE PRICE TICKER ===== -->
+    <div class="ticker-tape" id="tickerTape">
+      <div class="ticker-content" id="tickerContent">
+        <span class="ticker-item">Loading live prices...</span>
+      </div>
+    </div>
+
+    <!-- =============== DASHBOARD SECTION =============== -->
+    <section id="section-dashboard" class="page-section active">
+      <h1 class="page-title">Portfolio Dashboard</h1>
+
+      <!-- Portfolio Summary Cards -->
+      <div class="summary-grid">
+        <div class="summary-card glass-card">
+          <div class="summary-label">Total Value</div>
+          <div class="summary-value" id="totalValue">$0.00</div>
+          <div class="summary-change positive" id="totalChange">+0.00%</div>
+        </div>
+        <div class="summary-card glass-card">
+          <div class="summary-label">Total Invested</div>
+          <div class="summary-value" id="totalInvested">$0.00</div>
+        </div>
+        <div class="summary-card glass-card">
+          <div class="summary-label">Profit / Loss</div>
+          <div class="summary-value" id="totalPnl">$0.00</div>
+          <div class="summary-change" id="pnlPercent">0.00%</div>
+        </div>
+        <div class="summary-card glass-card">
+          <div class="summary-label">Assets Held</div>
+          <div class="summary-value" id="assetCount">0</div>
+        </div>
+      </div>
+
+      <!-- On-Chain Balance (Shown by script.js if blockchain enabled) -->
+      <div id="onChainBalanceCard" class="summary-grid" style="display: none; margin-top: 1rem;">
+        <div class="summary-card glass-card" style="border: 1px solid var(--accent-light);">
+          <div class="summary-label" style="color:var(--accent-light)">⟠ On-Chain ETH (Sepolia)</div>
+          <div class="summary-value" id="ocEthBalance">0.0000 ETH</div>
+        </div>
+        <div class="summary-card glass-card" style="border: 1px solid var(--accent-light);">
+          <div class="summary-label" style="color:var(--accent-light)">🪙 On-Chain CST Token</div>
+          <div class="summary-value" id="ocCstBalance">0.00 CST</div>
+        </div>
+      </div>
+      <!-- Add Holding -->
+      <div class="flex-row">
+        <div class="card glass-card flex-1">
+          <h2>Add Holding</h2>
+          <p class="subtitle">Add tokens to your portfolio.</p>
+          <div class="input-group">
+            <select class="input select-input" id="addCoinSymbol">
+              <option value="" disabled selected>Select Token</option>
+              <option value="btc">Bitcoin (BTC)</option>
+              <option value="eth">Ethereum (ETH)</option>
+              <option value="sol">Solana (SOL)</option>
+              <option value="doge">Dogecoin (DOGE)</option>
+              <option value="xrp">Ripple (XRP)</option>
+              <option value="ada">Cardano (ADA)</option>
+              <option value="bnb">BNB</option>
+              <option value="xmr">Monero (XMR)</option>
+              <option value="dot">Polkadot (DOT)</option>
+              <option value="avax">Avalanche (AVAX)</option>
+              <option value="link">Chainlink (LINK)</option>
+              <option value="ltc">Litecoin (LTC)</option>
+              <option value="shib">Shiba Inu (SHIB)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <input class="input" id="addCoinAmount" placeholder=" " type="number" step="any" />
+            <label>Amount</label>
+          </div>
+          <div class="input-group">
+            <input class="input" id="addCoinPrice" placeholder=" " type="number" step="any" />
+            <label>Buy Price (USD) — optional</label>
+          </div>
+          <button class="btn btn-primary" onclick="addHolding()">Add to Portfolio</button>
+        </div>
+
+        <!-- Quick Price Check -->
+        <div class="card glass-card flex-1">
+          <h2>Price Oracle</h2>
+          <p class="subtitle">Check live prices from CoinGecko.</p>
+          <div class="input-group">
+            <select class="input select-input" id="priceCheckCoin">
+              <option value="btc">Bitcoin (BTC)</option>
+              <option value="eth">Ethereum (ETH)</option>
+              <option value="sol">Solana (SOL)</option>
+              <option value="doge">Dogecoin (DOGE)</option>
+              <option value="xrp">Ripple (XRP)</option>
+              <option value="ada">Cardano (ADA)</option>
+              <option value="bnb">BNB</option>
+              <option value="xmr">Monero (XMR)</option>
+              <option value="dot">Polkadot (DOT)</option>
+              <option value="avax">Avalanche (AVAX)</option>
+              <option value="link">Chainlink (LINK)</option>
+              <option value="ltc">Litecoin (LTC)</option>
+              <option value="shib">Shiba Inu (SHIB)</option>
+              <option value="pepe">Pepe (PEPE)</option>
+              <option value="arb">Arbitrum (ARB)</option>
+              <option value="sui">Sui (SUI)</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" onclick="checkPrice()">Fetch Price</button>
+          <div class="price-display" id="priceOutput">Awaiting price data...</div>
+        </div>
+      </div>
+
+      <!-- Holdings Table -->
+      <h2 class="section-title">Your Holdings</h2>
+      <div class="card glass-card table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>Amount</th>
+              <th>Buy Price</th>
+              <th>Current Price</th>
+              <th>Value</th>
+              <th>P&L</th>
+              <th>24h</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="holdingsTableBody">
+          </tbody>
+        </table>
+        <p id="emptyPortfolio" class="empty-text">No holdings yet. Add your first asset above.</p>
+      </div>
+    </section>
+
+    <!-- =============== WALLET VAULT SECTION =============== -->
+    <section id="section-vault" class="page-section">
+      <h1 class="page-title">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" 
+style="vertical-align: middle; margin-right: 8px;"><rect x="3" y="11" width="18" height="11" rx="2" 
+ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        AA-Protected Wallet Vault
+      </h1>
+      <p class="page-subtitle">Your seed phrase is encrypted with AES-256-GCM and protected by Account Abstraction 
+security principles. The server never stores your password.</p>
+
+      <div class="flex-row">
+        <!-- Store Seed -->
+        <div class="card glass-card flex-1">
+          <div class="vault-status" id="vaultStatus">
+            <div class="vault-icon locked" id="vaultIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" 
+width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <span id="vaultStatusText">Checking vault status...</span>
+          </div>
+
+          <h2>Store Seed Phrase</h2>
+          <p class="subtitle">Encrypt and store your wallet's seed phrase securely.</p>
+          <div class="input-group">
+            <textarea class="input textarea" id="seedPhraseInput" placeholder=" " rows="3"></textarea>
+            <label>Seed Phrase (12 or 24 words)</label>
+          </div>
+          <div class="input-group">
+            <input class="input" id="vaultPassword" type="password" placeholder=" " />
+            <label>Encryption Password (min 8 chars)</label>
+          </div>
+          <button class="btn btn-primary" onclick="storeSeedPhrase()">Encrypt & Store</button>
+        </div>
+
+        <!-- Retrieve Seed -->
+        <div class="card glass-card flex-1">
+          <h2>Retrieve Seed Phrase</h2>
+          <p class="subtitle">Decrypt your stored seed phrase.</p>
+          <div class="input-group">
+            <input class="input" id="retrievePassword" type="password" placeholder=" " />
+            <label>Decryption Password</label>
+          </div>
+          <button class="btn btn-secondary" onclick="retrieveSeedPhrase()">Decrypt & Reveal</button>
+          <div class="seed-reveal" id="seedReveal" style="display:none;">
+            <div class="seed-words" id="seedWords"></div>
+            <button class="btn btn-danger btn-sm" onclick="hideSeed()">Hide Seed Phrase</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AA Info Box -->
+      <div class="card glass-card aa-info-card">
+        <div class="aa-badge">Account Abstraction (ERC-4337)</div>
+        <h3>How Your Vault is Protected</h3>
+        <div class="aa-grid">
+          <div class="aa-feature">
+            <div class="aa-feature-icon">🔐</div>
+            <h4>AES-256-GCM Encryption</h4>
+            <p>Military-grade encryption with authenticated encryption to prevent tampering.</p>
+          </div>
+          <div class="aa-feature">
+            <div class="aa-feature-icon">🔑</div>
+            <h4>PBKDF2 Key Derivation</h4>
+            <p>100,000 iterations of SHA-256 to derive the encryption key from your password.</p>
+          </div>
+          <div class="aa-feature">
+            <div class="aa-feature-icon">⛽</div>
+            <h4>Gasless Transactions</h4>
+            <p>AA enables gasless vault operations — no ETH needed to manage your keys.</p>
+          </div>
+          <div class="aa-feature">
+            <div class="aa-feature-icon">🛡️</div>
+            <h4>Zero-Knowledge Password</h4>
+            <p>Your password is never stored. Only the encrypted blob + salt + IV are saved.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== TRADING SECTION =============== -->
+    <section id="section-trading" class="page-section">
+      <h1 class="page-title">Trading Terminal</h1>
+
+      <div class="flex-row">
+        <!-- Trade Form -->
+        <div class="card glass-card flex-1">
+          <h2>Execute Trade</h2>
+          <p class="subtitle">Trade with real-time market prices.</p>
+          <div class="input-group">
+            <input class="input" id="tradePair" placeholder=" " value="BTC/USDT" />
+            <label>Trading Pair</label>
+          </div>
+          <div class="input-group">
+            <select class="input select-input" id="tradeOrderType">
+              <option value="market">Market Order</option>
+              <option value="limit">Limit Order</option>
+            </select>
+            <label class="static-label">Order Type</label>
+          </div>
+          <div class="input-group">
+            <input class="input" id="tradeAmount" placeholder=" " type="number" step="any" />
+            <label>Amount</label>
+          </div>
+          <div class="trade-buttons">
+            <button class="btn btn-success flex-1" onclick="executeTrade('buy')">BUY</button>
+            <button class="btn btn-danger flex-1" onclick="executeTrade('sell')">SELL</button>
+          </div>
+          <div id="tradeResult" class="trade-result"></div>
+        </div>
+
+        <!-- Live Price Panel -->
+        <div class="card glass-card flex-1">
+          <h2>Live Market</h2>
+          <div class="live-prices-grid" id="livePricesGrid">
+            <div class="price-loading">Connecting to price feed...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trade History -->
+      <h2 class="section-title">Trade History</h2>
+      <div class="card glass-card table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Pair</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="tradeHistoryBody"></tbody>
+        </table>
+        <p id="emptyTrades" class="empty-text">No trades yet.</p>
+      </div>
+    </section>
+
+    <!-- =============== AI PREMIUM SECTION =============== -->
+    <section id="section-ai" class="page-section">
+      <h1 class="page-title">AI Market Intelligence</h1>
+
+      <!-- Premium / Elite Toggle -->
+      <div class="tier-cards">
+        <div class="tier-card glass-card" id="premiumCard">
+          <div class="tier-badge premium-badge">PREMIUM</div>
+          <h3>AI Analysis</h3>
+          <p>Real-time market scoring with top coin picks based on momentum, volume, and trend analysis.</p>
+          <button class="btn btn-accent" id="premiumBtn" onclick="unlockPremium()">Unlock Premium</button>
+        </div>
+        <div class="tier-card glass-card" id="eliteCard">
+          <div class="tier-badge elite-badge">ELITE</div>
+          <h3>Auto-Trade Bot</h3>
+          <p>Configure an AI-powered bot that trades automatically based on your risk preferences and budget.</p>
+          <button class="btn btn-accent" id="eliteBtn" onclick="unlockElite()">Unlock Elite</button>
+        </div>
+      </div>
+
+      <!-- AI Top Picks (Premium) -->
+      <div id="aiPremiumSection" class="ai-locked-section">
+        <div class="locked-overlay" id="premiumLock">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2"><rect 
+x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <p>Unlock Premium to access AI Analysis</p>
+        </div>
+        <h2 class="section-title">Top AI Picks</h2>
+        <p class="subtitle">Coins scored by momentum, volume ratio, and 7-day trend.</p>
+        <button class="btn btn-accent" onclick="fetchAIPicks()" style="margin-bottom:20px;">Run Market 
+Analysis</button>
+        <div class="ai-picks-grid" id="aiPicksGrid"></div>
+      </div>
+
+      <!-- Auto-Trade Bot (Elite) -->
+      <div id="aiEliteSection" class="ai-locked-section" style="margin-top:30px;">
+        <div class="locked-overlay" id="eliteLock">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2"><rect 
+x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <p>Unlock Elite to access Auto-Trade Bot</p>
+        </div>
+        <h2 class="section-title">Auto-Trade Bot</h2>
+        <div class="card glass-card">
+          <div class="bot-config">
+            <div class="input-group">
+              <input class="input" id="botBudget" placeholder=" " type="number" value="500" />
+              <label>Budget (USD)</label>
+            </div>
+            <div class="input-group">
+              <select class="input select-input" id="botRisk">
+                <option value="conservative">Conservative (DCA)</option>
+                <option value="balanced" selected>Balanced</option>
+                <option value="aggressive">Aggressive (Momentum)</option>
+              </select>
+              <label class="static-label">Risk Level</label>
+            </div>
+            <div class="input-group">
+              <input class="input" id="botCoins" placeholder=" " value="BTC,ETH,SOL" />
+              <label>Target Coins (comma separated)</label>
+            </div>
+          </div>
+          <div class="bot-controls">
+            <button class="btn btn-success" id="botStartBtn" onclick="startBot()">Start Bot</button>
+            <button class="btn btn-danger" id="botStopBtn" onclick="stopBot()" disabled>Stop Bot</button>
+            <div class="bot-status" id="botStatus">Bot inactive</div>
+          </div>
+          <div class="bot-log" id="botLog">
+            <div class="console-header">Bot Activity Log</div>
+            <div class="console-body" id="botLogBody">Waiting for bot activation...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== MINING SECTION =============== -->
+    <section id="section-mining" class="page-section">
+      <h1 class="page-title">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" 
+style="vertical-align:middle;margin-right:8px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        Mining Engine
+      </h1>
+      <p class="page-subtitle">Use your CPU/GPU power to mine cryptocurrency. Mined coins are automatically added to 
+your portfolio.</p>
+
+      <div class="card glass-card mining-panel">
+        <div class="mining-header">
+          <h2>Configure Mining</h2>
+          <div class="mining-indicator" id="miningIndicator">
+            <div class="pulse-ring" id="miningPulse" style="display:none;"></div>
+            <span id="miningStatusLabel">Offline</span>
+          </div>
+        </div>
+
+        <div class="flex-row">
+          <div class="flex-1">
+            <div class="input-group">
+              <select class="input select-input" id="miningCoin">
+                <option value="XMR">Monero (XMR) — CPU Friendly</option>
+                <option value="BTC">Bitcoin (BTC)</option>
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="LTC">Litecoin (LTC)</option>
+                <option value="DOGE">Dogecoin (DOGE)</option>
+              </select>
+              <label class="static-label">Select Coin</label>
+            </div>
+            <div class="input-group">
+              <input class="input" id="miningThreads" type="number" placeholder=" " value="2" min="1" max="16" />
+              <label>Threads (1-16)</label>
+            </div>
+          </div>
+
+          <div class="flex-1">
+            <label class="static-label" style="margin-bottom:15px;display:block;">Hardware Mode</label>
+            <div class="radio-grid">
+              <label class="radio-card">
+                <input type="radio" name="miningHardware" value="cpu" checked />
+                <div class="card-content">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" 
+stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" 
+height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" 
+y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" 
+y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" 
+y1="14" x2="4" y2="14"></line></svg>
+                  <span>CPU</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="miningHardware" value="gpu" />
+                <div class="card-content">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" 
+stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" 
+y2="10"></line><line x1="7" y1="15" x2="7.01" y2="15"></line><line x1="11" y1="15" x2="11.01" y2="15"></line></svg>
+                  <span>GPU</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mining-controls">
+          <button class="btn btn-primary btn-large" id="startMiningBtn" onclick="startMining()">Start Mining</button>
+          <button class="btn btn-danger btn-large" id="stopMiningBtn" onclick="stopMining()" 
+style="display:none;">Stop Mining</button>
+        </div>
+
+        <!-- Mining Stats Dashboard -->
+        <div class="mining-stats" id="miningStats" style="display:none;">
+          <div class="stat-card">
+            <div class="stat-label">Hashrate</div>
+            <div class="stat-value" id="statHashrate">0 H/s</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Shares Found</div>
+            <div class="stat-value" id="statShares">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Accepted</div>
+            <div class="stat-value" id="statAccepted">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Earnings</div>
+            <div class="stat-value" id="statEarnings">0.00000000</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Elapsed</div>
+            <div class="stat-value" id="statElapsed">00:00</div>
+          </div>
+        </div>
+
+        <!-- Hash Visualization -->
+        <div class="hash-scroll" id="hashScroll" style="display:none;">
+          <div class="console-header">Live Hash Stream</div>
+          <div class="console-body hash-stream" id="hashStream"></div>
+        </div>
+      </div>
+
+      <!-- Mining History -->
+      <h2 class="section-title">Mining History</h2>
+      <div class="card glass-card table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Coin</th>
+              <th>Hardware</th>
+              <th>Hashrate</th>
+              <th>Shares</th>
+              <th>Earnings</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="miningHistoryBody"></tbody>
+        </table>
+        <p id="emptyMining" class="empty-text">No mining sessions yet.</p>
+      </div>
+    </section>
+
+    <!-- =============== NFT MARKETPLACE SECTION =============== -->
+    <section id="section-nft" class="page-section">
+      <h1 class="page-title">NFT Marketplace</h1>
+
+      <!-- NFT Tabs -->
+      <div class="nft-tabs">
+        <button class="nft-tab active" onclick="showNFTTab('browse')" id="nftTabBrowse">Browse</button>
+        <button class="nft-tab" onclick="showNFTTab('owned')" id="nftTabOwned">My Collection</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="nft-filters" id="nftFilters">
+        <select class="input select-input filter-select" id="nftCollectionFilter" onchange="fetchNFTs()">
+          <option value="">All Collections</option>
+        </select>
+        <select class="input select-input filter-select" id="nftSortFilter" onchange="fetchNFTs()">
+          <option value="">Newest</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+      </div>
+
+      <!-- NFT Grid -->
+      <div class="nft-grid" id="nftGrid">
+        <div class="price-loading">Loading NFTs...</div>
+      </div>
+
+      <!-- Owned NFTs -->
+      <div class="nft-grid" id="ownedNFTGrid" style="display:none;">
+        <p class="empty-text" id="emptyOwned">You don't own any NFTs yet.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Validation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2>Basic Form Validation</h2>
+
+<form onsubmit="return validateForm()">
+
+    <label>Email:</label><br>
+    <input type="text" id="email">
+    <div id="emailError" class="error"></div>
+
+    <label>Phone Number:</label><br>
+    <input type="text" id="phone">
+    <div id="phoneError" class="error"></div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChainSync | Connect Wallet</title>
+  <meta name="description" content="Connect your blockchain wallet to access ChainSync — your decentralized crypto platform." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #00ff88;
+      --secondary: #00cc66;
+      --accent: #20e2d7;
+      --bg-dark: #000c05;
+      --glass-bg: rgba(5, 20, 10, 0.4);
+      --glass-border: rgba(0, 255, 136, 0.15);
+      --text-main: #ffffff;
+      --text-muted: #8fb3a0;
+      --error: #ff4c4c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      pointer-events: none;
+      animation: pulse 8s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    }
+
+    #neural-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    .login-container {
+      position: relative;
+      z-index: 2;
+      width: 100%; height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .glass-panel {
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      min-height: 550px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .branding-side {
+      flex: 1;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      border-right: 1px solid var(--glass-border);
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.05) 0%, transparent 100%);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .logo-icon svg { width: 24px; height: 24px; fill: #fff; }
+
+    .logo-text { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+
+    .branding-side h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #ffffff, #a8ffd2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .highlight {
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 200% auto;
+      animation: shine 4s linear infinite;
+    }
+
+    @keyframes shine { to { background-position: 200% center; } }
+
+    .branding-side p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .feature-list {
+      margin-top: 24px;
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .form-side {
+      flex: 1;
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .form-header { margin-bottom: 40px; }
+    .form-header h2 { font-size: 2rem; font-weight: 600; margin-bottom: 8px; }
+    .form-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(90deg, var(--secondary), var(--accent));
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 255, 136, 0.25);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 255, 136, 0.35);
+    }
+
+    .btn-submit:active { transform: translateY(1px); }
+
+    .btn-submit::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+      transform: skewX(-20deg);
+      transition: all 0.6s ease;
+    }
+
+    .btn-submit:hover::after { left: 150%; }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #wallet-info {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .wallet-address-display {
+      color: var(--primary);
+      font-weight: 600;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 0.9rem;
+      padding: 10px;
+      background: rgba(0, 255, 136, 0.05);
+      border: 1px solid rgba(0, 255, 136, 0.15);
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .auth-error {
+      color: var(--error);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 15px;
+      min-height: 20px;
+      opacity: 0;
+      transform: translateY(-5px);
+      transition: all 0.3s;
+    }
+
+    .auth-error.visible { opacity: 1; transform: translateY(0); }
+
+    .form-footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .form-footer a {
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+      transition: color 0.2s;
+    }
+
+    .form-footer a:hover { color: var(--primary); }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .step.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+    }
+
+    .step.done {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #000;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--glass-border);
+    }
+
+    .step-line.done { background: var(--primary); }
+
+    @media (max-width: 850px) {
+      .glass-panel { flex-direction: column; min-height: auto; max-width: 500px; }
+      .branding-side { padding: 40px 30px; border-right: none; border-bottom: 1px solid var(--glass-border); text-align: center; }
+      .logo-container { justify-content: center; }
+      .branding-side h1 { font-size: 2.2rem; }
+      .form-side { padding: 40px 30px; }
+      .feature-list { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+  <canvas id="neural-canvas"></canvas>
+
+  <div class="login-container">
+    <div class="glass-panel">
+      
+      <div class="branding-side">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="logo-text">Chain<span class="highlight">Sync</span></span>
+        </div>
+        <h1>Decentralized<br>Crypto<br><span class="highlight">Platform</span></h1>
+        <p>Your all-in-one gateway to portfolio management, trading, mining, and NFTs.</p>
+        <ul class="feature-list">
+          <li>Live cryptocurrency prices</li>
+          <li>Encrypted seed phrase vault</li>
+          <li>AI-powered trading analysis</li>
+          <li>Browser-based mining</li>
+          <li>NFT Marketplace</li>
+        </ul>
+      </div>
+
+      <div class="form-side">
+        <div class="form-header">
+          <h2>Connect & Login</h2>
+          <p>Authenticate with your MetaMask wallet to access the platform.</p>
+        </div>
+
+        <div class="step-indicator">
+          <div class="step active" id="step1">1</div>
+          <div class="step-line" id="stepLine1"></div>
+          <div class="step" id="step2">2</div>
+          <div class="step-line" id="stepLine2"></div>
+          <div class="step" id="step3">3</div>
+        </div>
+
+        <div id="wallet-section">
+          <button type="button" class="btn-submit" id="connect-btn" onclick="connectWallet()">
+            Connect MetaMask Wallet
+          </button>
+          
+          <div style="margin-top: 20px; text-align: center;">
+            <a href="#" onclick="adminLogin()" style="color: var(--primary); text-decoration: none; font-size: 0.85rem; border-bottom: 1px dashed var(--primary); padding-bottom: 2px; opacity: 0.8; transition: opacity 0.2s;">
+              Demo Admin Login (Unlock Premium/Elite)
+            </a>
+          </div>
+          
+          <div id="wallet-info" style="display: none;">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Connected Address:</p>
+            <div class="wallet-address-display" id="wallet-address"></div>
+            <button type="button" class="btn-submit" id="login-btn" onclick="handleLogin()" style="margin-top: 15px; background: linear-gradient(90deg, var(--accent), var(--secondary));">
+              Sign & Login
+            </button>
+          </div>
+        </div>
+
+        <div id="error-msg" class="auth-error"></div>
+
+        <div class="form-footer">
+          New to Web3? <a href="https://metamask.io/" target="_blank">Get MetaMask</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let userAddress = null;
+
+    async function connectWallet() {
+      const connectBtn = document.getElementById('connect-btn');
+      const errorMsg = document.getElementById('error-msg');
+
+      errorMsg.classList.remove('visible');
+      connectBtn.textContent = 'Connecting...';
+      connectBtn.disabled = true;
+
+      try {
+        if (!window.ethereum) {
+          throw new Error('MetaMask not detected. Please install MetaMask.');
+        }
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        
+        // Enforce Sepolia testnet (chainId 0xaa36a7)
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== '0xaa36a7') {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0xaa36a7' }],
+            });
+          } catch (switchError) {
+            throw new Error('Please switch to the Sepolia testnet in MetaMask to continue.');
+          }
+        }
+
+        const signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+
+        // Update UI
+        connectBtn.style.display = 'none';
+        document.getElementById('wallet-info').style.display = 'block';
+        document.getElementById('wallet-address').textContent = userAddress;
+
+        // Update steps
+        document.getElementById('step1').classList.add('done');
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('stepLine1').classList.add('done');
+        document.getElementById('step2').classList.add('active');
+
+      } catch (error) {
+        errorMsg.textContent = error.message || 'Wallet connection failed.';
+        errorMsg.classList.add('visible');
+        shakePanel();
+      } finally {
+        connectBtn.textContent = 'Connect MetaMask Wallet';
+        connectBtn.disabled = false;
+      }
+    }
+
+    async function adminLogin() {
+      const errorMsg = document.getElementById('error-msg');
+      errorMsg.classList.remove('visible');
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            walletAddress: '0xADMIN',
+            message: 'Admin Bypass',
+            signature: '0x0'
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Admin login failed.');
+
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+
+        window.location.href = '/';
+      } catch (error) {
+        errorMsg.textContent = error.message;
+        errorMsg.classList.add('visible');
+      }
+    }
+
+    async function handleLogin() {
+      if (!userAddress) { alert('Connect your wallet first.'); return; }
+
+      const loginBtn = document.getElementById('login-btn');
+      const errorMsg = document.getElementById('error-msg');
+
+      errorMsg.classList.remove('visible');
+      loginBtn.textContent = 'Signing message...';
+      loginBtn.disabled = true;
+
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        // Sign a message for authentication
+        const message = `Login to ChainSync at ${new Date().toISOString()}`;
+        const signature = await signer.signMessage(message);
+
+        // Update steps
+        document.getElementById('step2').classList.add('done');
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('stepLine2').classList.add('done');
+        document.getElementById('step3').classList.add('active');
+
+        loginBtn.textContent = 'Authenticating...';
+
+        // Send to backend
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            walletAddress: userAddress,
+            message,
+            signature
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Authentication failed.');
+        }
+
+        // Store auth data
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+
+        // Mark complete
+        document.getElementById('step3').classList.add('done');
+        document.getElementById('step3').classList.remove('active');
+
+        loginBtn.textContent = '✓ Login Successful!';
+        loginBtn.style.background = 'var(--success)';
+        loginBtn.style.color = '#000';
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+
+      } catch (error) {
+        errorMsg.textContent = error.message || 'Authentication failed.';
+        errorMsg.classList.add('visible');
+        shakePanel();
+      } finally {
+        if (loginBtn.textContent.includes('Signing') || loginBtn.textContent.includes('Authenticating')) {
+          loginBtn.textContent = 'Sign & Login';
+        }
+        loginBtn.disabled = false;
+      }
+    }
+
+    function shakePanel() {
+      const panel = document.querySelector('.glass-panel');
+      panel.animate([
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(-12px)' },
+        { transform: 'translateX(12px)' },
+        { transform: 'translateX(-6px)' },
+        { transform: 'translateX(6px)' },
+        { transform: 'translateX(0)' }
+      ], { duration: 400, easing: 'ease-in-out' });
+    }
+
+    // Check if already connected
+    window.addEventListener('load', async () => {
+      if (window.ethereum) {
+        try {
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) {
+            userAddress = accounts[0];
+            document.getElementById('connect-btn').style.display = 'none';
+            document.getElementById('wallet-info').style.display = 'block';
+            document.getElementById('wallet-address').textContent = userAddress;
+            document.getElementById('step1').classList.add('done');
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('stepLine1').classList.add('done');
+            document.getElementById('step2').classList.add('active');
+          }
+        } catch (e) { /* not connected */ }
+      }
+    });
+
+    // Neural Network Canvas
+    const canvas = document.getElementById('neural-canvas');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = (Math.random() - 0.5) * 0.8;
+        this.radius = Math.random() * 2 + 0.5;
+        this.color = Math.random() > 0.5 ? '#00ff88' : '#20e2d7';
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > w) this.vx *= -1;
+        if (this.y < 0 || this.y > h) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+    function initNetwork() {
+      const count = Math.min(Math.floor((w * h) / 15000), 80);
+      particles = [];
+      for (let i = 0; i < count; i++) particles.push(new Particle());
+    }
+
+    let mouse = { x: null, y: null };
+    window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+
+    function drawNetwork() {
+      ctx.clearRect(0, 0, w, h);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            const opacity = 1 - dist / 120;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(0, 255, 136, ${opacity * 0.3})`;
+            ctx.lineWidth = 0.6;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+        if (mouse.x !== null) {
+          const dx = particles[i].x - mouse.x;
+          const dy = particles[i].y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            const opacity = 1 - dist / 150;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(32, 226, 215, ${opacity * 0.5})`;
+            ctx.lineWidth = 1;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawNetwork);
+    }
+
+    initNetwork();
+    drawNetwork();
+  </script>
+</body>
+</html>
