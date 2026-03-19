@@ -50,18 +50,27 @@ router.post('/login', async (req, res) => {
 
       // Update last login
       user.lastLogin = new Date();
+      // Hackathon override: Give every user Premium & Elite
+      user.isPremium = true;
+      user.isElite = true;
       await user.save();
 
       // Generate JWT
       const token = jwt.sign(
-        { userId: user._id, walletAddress: user.walletAddress, isPremium: user.isPremium, isElite: user.isElite },
+        { userId: user._id, walletAddress: user.walletAddress, isPremium: true, isElite: true },
         process.env.JWT_SECRET,
         { expiresIn: '24h' }
       );
 
       res.json({
         token,
-        user: { id: user._id, walletAddress: user.walletAddress, isPremium: user.isPremium, isElite: user.isElite, createdAt: user.createdAt }
+        user: {
+          id: user._id,
+          walletAddress: user.walletAddress,
+          isPremium: true,
+          isElite: true,
+          createdAt: user.createdAt
+        }
       });
     } catch (dbError) {
       console.warn('DB Error in login, but allowing session for demo if address is provided');
